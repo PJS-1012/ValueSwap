@@ -1,0 +1,1 @@
+-- ValueSwap schema baseline. Domain tables are added in subsequent migrations.

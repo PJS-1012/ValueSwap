@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: ValueSwap
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/valueswap}
+    username: ${MYSQL_USER:valueswap}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+valueswap:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+  matching:
+    threshold: ${MATCH_THRESHOLD:60}
+    interval-ms: ${MATCH_INTERVAL_MS:300000}
+    scheduler-enabled: ${MATCH_SCHEDULER_ENABLED:true}
