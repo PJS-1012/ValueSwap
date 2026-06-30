@@ -61,4 +61,11 @@ public class User {
     public static User create(String email, String encodedPassword, String name, String nickname) {
         return new User(email, encodedPassword, name, nickname);
     }
+
+    public static User createWithRole(String email, String encodedPassword, String name,
+                                      String nickname, UserRole role) {
+        User user = new User(email, encodedPassword, name, nickname);
+        user.role = role;
+        return user;
+    }
 }

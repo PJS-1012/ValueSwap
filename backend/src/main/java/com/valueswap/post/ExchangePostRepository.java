@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ExchangePostRepository extends JpaRepository<ExchangePost, Long> {
+    boolean existsByUserIdAndTitle(Long userId, String title);
     List<ExchangePost> findAllByStatusOrderByCreatedAtDesc(PostStatus status);
     List<ExchangePost> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }
