@@ -26,16 +26,14 @@ Copy-Item .env.example .env
 docker compose --env-file .env up -d mysql
 ```
 
-3. 현재 PowerShell 세션에 환경변수를 불러오고 백엔드를 실행합니다.
+3. 백엔드를 실행합니다. 애플리케이션은 프로젝트 루트의 `.env`를 자동으로 읽습니다.
 
 ```powershell
-Get-Content .env | Where-Object { $_ -match '^[^#][^=]+=' } | ForEach-Object {
-  $name, $value = $_ -split '=', 2
-  Set-Item -Path "Env:$name" -Value $value
-}
 Set-Location backend
-.\gradlew.bat bootRun --args="--spring.profiles.active=local"
+.\gradlew.bat bootRun
 ```
+
+IntelliJ에서도 별도 환경변수 입력 없이 `ValueSwapApplication`을 실행할 수 있습니다. 실행 작업 디렉터리는 프로젝트 루트 또는 `backend`여야 합니다.
 
 4. 새 PowerShell에서 프론트엔드를 실행합니다.
 
