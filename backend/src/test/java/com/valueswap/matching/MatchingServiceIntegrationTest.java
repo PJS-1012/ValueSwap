@@ -12,6 +12,9 @@ import com.valueswap.matching.domain.AcceptStatus;
 import com.valueswap.matching.domain.MatchStatus;
 import com.valueswap.user.User;
 import com.valueswap.user.UserRepository;
+import com.valueswap.trade.TradeRoomRepository;
+import com.valueswap.trade.TradeRoomService;
+import com.valueswap.trade.domain.TradeRoomStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,6 +45,12 @@ class MatchingServiceIntegrationTest {
 
     @Autowired
     private ExchangePostRepository postRepository;
+
+    @Autowired
+    private TradeRoomRepository tradeRoomRepository;
+
+    @Autowired
+    private TradeRoomService tradeRoomService;
 
     @Test
     void runIsIdempotentAndNotifiesEveryParticipantOnce() {
@@ -100,6 +109,27 @@ class MatchingServiceIntegrationTest {
         assertThat(candidateRepository.findById(matchId).orElseThrow().getParticipants())
                 .allSatisfy(participant -> assertThat(participant.getAcceptStatus()).isEqualTo(AcceptStatus.ACCEPTED));
         assertThat(postRepository.findAll()).allSatisfy(post -> assertThat(post.getStatus()).isEqualTo(PostStatus.IN_EXCHANGE));
+        assertThat(tradeRoomRepository.findByMatchCandidateId(matchId)).isPresent();
+        assertThat(tradeRoomRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void everyParticipantCompletionClosesRoomMatchAndPosts() {
+        Scenario scenario = createThreePartyScenario();
+        matchingService.runMatching();
+        Long matchId = candidateRepository.findAll().get(0).getId();
+        matchingService.accept(matchId, scenario.restaurant().getId());
+        matchingService.accept(matchId, scenario.farmer().getId());
+        matchingService.accept(matchId, scenario.designer().getId());
+        Long roomId = tradeRoomRepository.findByMatchCandidateId(matchId).orElseThrow().getId();
+
+        tradeRoomService.complete(roomId, scenario.restaurant().getId());
+        tradeRoomService.complete(roomId, scenario.farmer().getId());
+        var result = tradeRoomService.complete(roomId, scenario.designer().getId());
+
+        assertThat(result.getStatus()).isEqualTo(TradeRoomStatus.COMPLETED);
+        assertThat(candidateRepository.findById(matchId).orElseThrow().getStatus()).isEqualTo(MatchStatus.COMPLETED);
+        assertThat(postRepository.findAll()).allSatisfy(post -> assertThat(post.getStatus()).isEqualTo(PostStatus.COMPLETED));
     }
 
     @Test

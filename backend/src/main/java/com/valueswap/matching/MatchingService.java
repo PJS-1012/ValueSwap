@@ -17,6 +17,7 @@ import com.valueswap.notification.NotificationType;
 import com.valueswap.post.ExchangePostRepository;
 import com.valueswap.post.domain.ExchangePost;
 import com.valueswap.post.domain.PostStatus;
+import com.valueswap.trade.TradeRoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +35,17 @@ public class MatchingService {
     private final CycleFinder cycleFinder;
     private final MatchCandidateRepository candidateRepository;
     private final NotificationRepository notificationRepository;
+    private final TradeRoomService tradeRoomService;
 
     public MatchingService(ExchangePostRepository postRepository, MatchGraphBuilder graphBuilder,
                            CycleFinder cycleFinder, MatchCandidateRepository candidateRepository,
-                           NotificationRepository notificationRepository) {
+                           NotificationRepository notificationRepository, TradeRoomService tradeRoomService) {
         this.postRepository = postRepository;
         this.graphBuilder = graphBuilder;
         this.cycleFinder = cycleFinder;
         this.candidateRepository = candidateRepository;
         this.notificationRepository = notificationRepository;
+        this.tradeRoomService = tradeRoomService;
     }
 
     @Transactional
@@ -81,6 +84,7 @@ public class MatchingService {
                 .allMatch(item -> item.getAcceptStatus() == AcceptStatus.ACCEPTED)) {
             context.candidate().accept();
             context.candidate().getParticipants().forEach(item -> item.getExchangePost().startExchange());
+            tradeRoomService.createIfAbsent(context.candidate());
             createStatusNotifications(context.candidate(), NotificationType.MATCH_ACCEPTED,
                     "모든 참여자가 수락했습니다", "교환이 진행 중 상태로 전환되었습니다.");
         }

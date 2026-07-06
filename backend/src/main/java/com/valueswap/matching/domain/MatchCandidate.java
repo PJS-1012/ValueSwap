@@ -81,4 +81,6 @@ public class MatchCandidate {
     public void accept() { this.status = MatchStatus.ACCEPTED; }
 
     public void reject() { this.status = MatchStatus.REJECTED; }
+
+    public void complete() { this.status = MatchStatus.COMPLETED; }
 }

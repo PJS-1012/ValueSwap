@@ -102,4 +102,6 @@ public class ExchangePost {
     }
 
     public void startExchange() { this.status = PostStatus.IN_EXCHANGE; }
+
+    public void complete() { this.status = PostStatus.COMPLETED; }
 }
