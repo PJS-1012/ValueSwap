@@ -122,17 +122,23 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .trade-room-card h2 { margin: 10px 0 6px; }
 .trade-room-card p { margin: 0; color: var(--muted); }
 .trade-room-meta { display: flex; align-items: center; gap: 12px; white-space: nowrap; color: var(--muted); font-size: .82rem; }
-.trade-member-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-bottom: 18px; }
-.trade-member-status h2 { width: 100%; margin: 0; }
-.message-list { min-height: 360px; max-height: 58vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
-.chat-message { align-self: flex-start; max-width: min(72%, 620px); padding: 12px 14px; border-radius: 4px 16px 16px; background: var(--soft); }
+.trade-member-status { padding: 24px; margin: 28px 0; border-color: #dce5d7; background: #eef2e8; }
+.trade-member-status h2 { margin: 0 0 18px; }
+.trade-member-chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.trade-member-chip { display: inline-flex; align-items: center; gap: 9px; padding: 9px 13px; border-radius: 999px; font-size: .86rem; }
+.trade-member-chip.in-progress { background: #fff; color: var(--green); border: 1px solid #d3ddd0; }
+.trade-member-chip.completed { background: var(--green); color: #fff; }
+.trade-member-chip span { opacity: .76; }
+.message-list { min-height: 360px; max-height: 58vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.chat-message { align-self: flex-start; max-width: min(72%, 620px); padding: 13px 15px; border-radius: 4px 16px 16px; }
+.chat-message.theirs { background: #e9e6dc; color: #25312c; }
 .chat-message.mine { align-self: flex-end; border-radius: 16px 4px 16px 16px; background: var(--green); color: white; }
 .chat-message p { margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .chat-message time { font-size: .72rem; opacity: .7; }
-.message-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
-.message-form textarea { min-height: 52px; resize: vertical; }
+.message-form { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; margin-top: 22px; }
+.message-form textarea { min-height: 52px; max-height: 148px; line-height: 24px; resize: none; overflow-y: hidden; }
 .readonly-message { padding: 18px; border-radius: 14px; background: var(--soft); text-align: center; }
-.complete-trade-button { margin-top: 12px; }
+.complete-trade-button { margin-top: 20px; }
 .cycle-flow { padding: 30px 28px; background: #fbfcf9; border-block: 1px solid #e8ebe7; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 34px; }
 .cycle-edge { position: relative; padding: 18px; background: #fff; border: 1px solid #dce2dd; border-radius: 10px; box-shadow: 0 7px 18px rgba(23,79,59,.05); }
 .cycle-edge:not(:last-child)::after { content: '→'; position: absolute; right: -25px; top: 50%; transform: translateY(-50%); color: #6b897a; font-size: 1.25rem; }
