@@ -39,6 +39,11 @@ export default function TradeRoomPage() {
     element.style.height = `${Math.max(MESSAGE_INPUT_MIN_HEIGHT, Math.min(element.scrollHeight, MESSAGE_INPUT_MAX_HEIGHT))}px`
     element.style.overflowY = element.scrollHeight > MESSAGE_INPUT_MAX_HEIGHT ? 'auto' : 'hidden'
   }
+  const handleMessageKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing || event.keyCode === 229) return
+    event.preventDefault()
+    event.currentTarget.form?.requestSubmit()
+  }
   const submit = (event) => {
     event.preventDefault()
     const normalized = content.trim()
@@ -68,7 +73,7 @@ export default function TradeRoomPage() {
       <strong>{message.senderNickname}</strong><p>{message.content}</p><time>{formatMessageTime(message.createdAt)}</time>
     </article>)}<div ref={endRef} /></div>
     {completed ? <p className="readonly-message">완료된 거래는 대화 내용을 읽을 수만 있습니다.</p> : <>
-      <form className="message-form" onSubmit={submit}><label className="sr-only" htmlFor="trade-message">메시지 입력</label><textarea id="trade-message" ref={messageInputRef} value={content} maxLength={1000} onChange={(event) => { setContent(event.target.value); resizeMessageInput(event.target) }} placeholder="메시지를 입력하세요" /><button className="primary-button" type="submit">전송</button></form>
+      <form className="message-form" onSubmit={submit}><label className="sr-only" htmlFor="trade-message">메시지 입력</label><textarea id="trade-message" ref={messageInputRef} value={content} maxLength={1000} onChange={(event) => { setContent(event.target.value); resizeMessageInput(event.target) }} onKeyDown={handleMessageKeyDown} placeholder="메시지를 입력하세요" /><button className="primary-button" type="submit">전송</button></form>
       {!mine?.completedAt && <button className="secondary-button complete-trade-button" disabled={updating} onClick={complete}>거래 완료</button>}
     </>}
   </section>

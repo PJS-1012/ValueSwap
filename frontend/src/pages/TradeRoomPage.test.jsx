@@ -50,6 +50,24 @@ describe('거래방', () => {
     expect(input.style.overflowY).toBe('hidden')
   })
 
+  it('Enter는 전송하고 Shift Enter와 IME 조합 중 Enter는 전송하지 않는다', async () => {
+    render(<MemoryRouter initialEntries={['/trades/2']}><Routes><Route path="/trades/:id" element={<TradeRoomPage />} /></Routes></MemoryRouter>)
+    const input = await screen.findByLabelText('메시지 입력')
+
+    fireEvent.change(input, { target: { value: '바로 전송' } })
+    fireEvent.keyDown(input, { key: 'Enter', shiftKey: false, isComposing: false })
+    expect(send).toHaveBeenCalledWith('2', expect.objectContaining({ content: '바로 전송' }))
+
+    send.mockClear()
+    fireEvent.change(input, { target: { value: '줄바꿈' } })
+    fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })
+    expect(send).not.toHaveBeenCalled()
+
+    fireEvent.change(input, { target: { value: '조합 중' } })
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true })
+    expect(send).not.toHaveBeenCalled()
+  })
+
   it('과거 메시지의 발신자·본문·전송 시각을 표시하고 새 메시지를 전송한다', async () => {
     const user = userEvent.setup()
     render(<MemoryRouter initialEntries={['/trades/2']}><Routes><Route path="/trades/:id" element={<TradeRoomPage />} /></Routes></MemoryRouter>)
