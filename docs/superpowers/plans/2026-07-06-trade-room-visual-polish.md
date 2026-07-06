@@ -102,7 +102,53 @@ Run: `npm.cmd test -- --run src/pages/TradeRoomPage.test.jsx`
 
 Expected: PASS.
 
-### Task 3: 전체 검증과 커밋
+### Task 3: 키보드 전송 규칙
+
+**Files:**
+- Modify: `frontend/src/pages/TradeRoomPage.test.jsx`
+- Modify: `frontend/src/pages/TradeRoomPage.jsx`
+
+- [ ] **Step 1: 실패 테스트 작성**
+
+입력창에서 `Enter`를 누르면 전송되고, `Shift + Enter`와 IME 조합 중 `Enter`는 전송되지 않는 테스트를 추가한다.
+
+```jsx
+fireEvent.change(input, { target: { value: '안녕하세요' } })
+fireEvent.keyDown(input, { key: 'Enter', shiftKey: false, isComposing: false })
+expect(send).toHaveBeenCalledTimes(1)
+
+fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })
+expect(send).toHaveBeenCalledTimes(1)
+
+fireEvent.keyDown(input, { key: 'Enter', isComposing: true })
+expect(send).toHaveBeenCalledTimes(1)
+```
+
+- [ ] **Step 2: 실패 확인**
+
+Run: `npm.cmd test -- --run src/pages/TradeRoomPage.test.jsx`
+
+Expected: `Enter`가 폼을 제출하지 않아 FAIL.
+
+- [ ] **Step 3: 최소 구현**
+
+textarea의 `onKeyDown`에서 일반 `Enter`만 기본 줄바꿈을 막고 현재 폼의 `requestSubmit()`을 호출한다.
+
+```jsx
+const handleMessageKeyDown = (event) => {
+  if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) return
+  event.preventDefault()
+  event.currentTarget.form?.requestSubmit()
+}
+```
+
+- [ ] **Step 4: 대상 테스트 통과 확인**
+
+Run: `npm.cmd test -- --run src/pages/TradeRoomPage.test.jsx`
+
+Expected: PASS.
+
+### Task 4: 전체 검증과 커밋
 
 **Files:**
 - Verify: `frontend/src/pages/TradeRoomPage.jsx`
