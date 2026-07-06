@@ -1,10 +1,13 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useNotifications } from '../notifications/NotificationProvider.jsx'
+import { useTradeRooms } from '../trades/TradeRoomProvider.jsx'
+import { formatUnreadCount } from '../trades/tradeFormat.js'
 
 export default function AppShell({ children }) {
   const { user, logout } = useAuth()
   const { unreadCount, hasUnreadMatches } = useNotifications()
+  const { totalUnread } = useTradeRooms()
   return (
     <div className="app">
       <header className="site-header">
@@ -15,6 +18,7 @@ export default function AppShell({ children }) {
         <nav aria-label="주요 메뉴">
           <NavLink to="/">교환 글</NavLink>
           {user && <NavLink className={({ isActive }) => `nav-with-badge${isActive ? ' active' : ''}`} to="/matches">매칭{hasUnreadMatches && <span className="notification-dot-badge" aria-label="새 매칭 있음" />}</NavLink>}
+          {user && <NavLink className={({ isActive }) => `nav-with-badge${isActive ? ' active' : ''}`} to="/trades">대화{totalUnread > 0 && <span className="notification-count" aria-label={`읽지 않은 메시지 ${totalUnread}개`}>{formatUnreadCount(totalUnread)}</span>}</NavLink>}
           {user && <NavLink className={({ isActive }) => `nav-with-badge${isActive ? ' active' : ''}`} to="/notifications">알림{unreadCount > 0 && <span className="notification-count" aria-label={`읽지 않은 알림 ${unreadCount}개`}>{unreadCount}</span>}</NavLink>}
           {user && <NavLink to="/posts/new">글 등록</NavLink>}
           {user ? (

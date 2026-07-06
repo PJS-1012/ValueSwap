@@ -22,6 +22,7 @@ vi.mock('../api/posts.js', () => ({
 }))
 
 vi.mock('../api/notifications.js', () => ({ notificationsApi: { list: vi.fn().mockResolvedValue([]), markRead: vi.fn() } }))
+vi.mock('../api/tradeRooms.js', () => ({ tradeRoomsApi: { list: vi.fn().mockResolvedValue([]) } }))
 
 describe('로그인 화면', () => {
   beforeEach(() => {

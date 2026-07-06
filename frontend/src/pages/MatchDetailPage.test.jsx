@@ -7,6 +7,7 @@ import MatchDetailPage from './MatchDetailPage.jsx'
 
 vi.mock('../api/matches.js', () => ({ matchesApi: { detail: vi.fn(), accept: vi.fn(), reject: vi.fn() } }))
 vi.mock('../auth/AuthProvider.jsx', () => ({ useAuth: () => ({ user: { id: 7 } }) }))
+vi.mock('../trades/TradeRoomProvider.jsx', () => ({ useTradeRooms: () => ({ rooms: [{ id: 22, matchId: 3 }] }) }))
 
 const detail = { id: 3, score: 90, matchType: 'THREE_PARTY', status: 'FOUND', edges: [], participants: [
   { userId: 7, nickname: '나', postTitle: '내 글', acceptStatus: 'PENDING' },
@@ -22,5 +23,6 @@ describe('매칭 상세 참여', () => {
     expect(matchesApi.accept).toHaveBeenCalledWith('3')
     expect(await screen.findByText('수락 완료')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /매우 높은 적합도/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '거래방으로 이동' })).toHaveAttribute('href', '/trades/22')
   })
 })

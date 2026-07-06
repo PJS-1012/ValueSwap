@@ -10,12 +10,16 @@ import MatchesPage from './pages/MatchesPage.jsx'
 import MatchDetailPage from './pages/MatchDetailPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
 import { NotificationProvider } from './notifications/NotificationProvider.jsx'
+import { TradeRoomProvider } from './trades/TradeRoomProvider.jsx'
+import TradeRoomsPage from './pages/TradeRoomsPage.jsx'
+import TradeRoomPage from './pages/TradeRoomPage.jsx'
 
 export default function App() {
   return (
     <NotificationProvider>
-    <AppShell>
-      <Routes>
+      <TradeRoomProvider>
+        <AppShell>
+          <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -24,9 +28,12 @@ export default function App() {
         <Route path="/matches" element={<ProtectedRoute><MatchesPage /></ProtectedRoute>} />
         <Route path="/matches/:id" element={<ProtectedRoute><MatchDetailPage /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/trades" element={<ProtectedRoute><TradeRoomsPage /></ProtectedRoute>} />
+        <Route path="/trades/:id" element={<ProtectedRoute><TradeRoomPage /></ProtectedRoute>} />
         <Route path="*" element={<section className="empty-state"><h1>페이지를 찾을 수 없습니다.</h1></section>} />
-      </Routes>
-    </AppShell>
+          </Routes>
+        </AppShell>
+      </TradeRoomProvider>
     </NotificationProvider>
   )
 }

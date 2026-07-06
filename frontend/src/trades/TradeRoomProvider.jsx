@@ -25,7 +25,12 @@ export function TradeRoomProvider({ children }) {
     try { setRooms(await tradeRoomsApi.list()) } catch { /* 다음 화면 진입이나 재연결 때 재시도 */ }
   }, [user?.id])
 
-  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    refresh()
+    if (!user) return undefined
+    const timer = window.setInterval(refresh, 15000)
+    return () => window.clearInterval(timer)
+  }, [refresh, user?.id])
 
   useEffect(() => {
     if (!user || rooms.length === 0) return undefined

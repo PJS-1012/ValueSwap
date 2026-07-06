@@ -152,6 +152,29 @@ Authorization: Bearer <accessToken>
 }
 ```
 
+## 거래방과 채팅
+
+매칭 참여자 전원이 수락하면 매칭 후보마다 거래방이 하나 생성됩니다. 거래방과 메시지는 참여자만 접근할 수 있으며, 완료된 거래방은 읽기 전용입니다.
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/trade-rooms` | 내 거래방과 최근 메시지·안 읽은 수 |
+| GET | `/trade-rooms/{roomId}` | 거래방·구성원 완료 상태 |
+| GET | `/trade-rooms/{roomId}/messages` | 메시지 조회 (`beforeId`, `afterId`, `size`) |
+| PATCH | `/trade-rooms/{roomId}/read` | 현재 최신 메시지까지 읽음 처리 |
+| POST | `/trade-rooms/{roomId}/complete` | 내 거래 완료 확인 |
+
+WebSocket은 `/ws`로 연결하며 STOMP `CONNECT` 헤더에 `Authorization: Bearer {JWT}`를 보냅니다. 메시지는 `/app/trade-rooms/{roomId}/messages`로 발행하고 `/topic/trade-rooms/{roomId}`를 구독합니다.
+
+```json
+{
+  "clientMessageId": "550e8400-e29b-41d4-a716-446655440000",
+  "content": "거래 장소는 어디가 좋을까요?"
+}
+```
+
+메시지는 공백 제거 후 1~1000자이며, 같은 방·발신자·`clientMessageId` 조합은 한 번만 저장됩니다. 각 사용자가 완료를 확인하고 마지막 참여자가 완료하면 거래방·매칭·게시글이 모두 `COMPLETED`로 전환됩니다. 화면의 전체·방별 안 읽은 수는 99까지 숫자로, 100개 이상은 `99+`로 표시합니다.
+
 ## 오류
 
 모든 오류는 같은 형식을 사용합니다. 입력 검증 오류일 때만 `fieldErrors`에 필드별 메시지가 들어갑니다.
