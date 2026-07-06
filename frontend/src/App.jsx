@@ -9,9 +9,11 @@ import PostDetailPage from './pages/PostDetailPage.jsx'
 import MatchesPage from './pages/MatchesPage.jsx'
 import MatchDetailPage from './pages/MatchDetailPage.jsx'
 import NotificationsPage from './pages/NotificationsPage.jsx'
+import { NotificationProvider } from './notifications/NotificationProvider.jsx'
 
 export default function App() {
   return (
+    <NotificationProvider>
     <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -25,5 +27,6 @@ export default function App() {
         <Route path="*" element={<section className="empty-state"><h1>페이지를 찾을 수 없습니다.</h1></section>} />
       </Routes>
     </AppShell>
+    </NotificationProvider>
   )
 }

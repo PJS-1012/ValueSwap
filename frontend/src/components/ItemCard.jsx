@@ -5,12 +5,13 @@ const categoryLabels = {
 }
 
 export default function ItemCard({ item, kind }) {
-  const value = kind === 'provide'
-    ? `${Number(item.estimatedValue).toLocaleString()}원 상당`
-    : `${Number(item.minValue).toLocaleString()}~${Number(item.maxValue).toLocaleString()}원`
+  const policyLabels = { NEGOTIABLE: '가치 협의 가능', OFFER_REQUESTED: '상대 제안 받기' }
+  const value = item.valuePolicy && item.valuePolicy !== 'DIRECT'
+    ? policyLabels[item.valuePolicy]
+    : kind === 'provide' ? `${Number(item.estimatedValue).toLocaleString()}원 상당` : `${Number(item.minValue).toLocaleString()}~${Number(item.maxValue).toLocaleString()}원`
   return (
     <article className={`item-card ${kind}`}>
-      <span className="eyebrow">{categoryLabels[item.category] || item.category} · {item.subCategory}</span>
+      <span className="eyebrow">{categoryLabels[item.category] || item.category}{item.subCategory && ` · ${item.subCategory}`}</span>
       <h4>{item.name}</h4>
       {item.description && <p>{item.description}</p>}
       <strong>{item.quantity}개 · {value}</strong>

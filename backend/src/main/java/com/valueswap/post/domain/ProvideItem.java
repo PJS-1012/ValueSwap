@@ -38,7 +38,7 @@ public class ProvideItem {
     @Column(nullable = false, length = 40)
     private Category category;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String subCategory;
 
     @Column(nullable = false, length = 200)
@@ -50,8 +50,12 @@ public class ProvideItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
+    @Column
     private Long estimatedValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ValuePolicy valuePolicy;
 
     @ElementCollection
     @CollectionTable(name = "provide_item_tags", joinColumns = @JoinColumn(name = "provide_item_id"))
@@ -67,6 +71,7 @@ public class ProvideItem {
         this.description = description;
         this.quantity = quantity;
         this.estimatedValue = estimatedValue;
+        this.valuePolicy = ValuePolicy.DIRECT;
         this.tags.addAll(tags);
     }
 
@@ -74,6 +79,14 @@ public class ProvideItem {
                                      String description, Integer quantity, Long estimatedValue,
                                      List<String> tags) {
         return new ProvideItem(category, subCategory, name, description, quantity, estimatedValue, tags);
+    }
+
+    public static ProvideItem create(Category category, String subCategory, String name,
+                                     String description, Integer quantity, Long estimatedValue,
+                                     ValuePolicy valuePolicy, List<String> tags) {
+        ProvideItem item = new ProvideItem(category, subCategory, name, description, quantity, estimatedValue, tags);
+        item.valuePolicy = valuePolicy;
+        return item;
     }
 
     void attachTo(ExchangePost exchangePost) {

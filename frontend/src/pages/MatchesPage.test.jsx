@@ -25,8 +25,11 @@ describe('내 매칭 화면', () => {
 
     const cards = await screen.findAllByTestId('match-card')
     expect(within(cards[0]).getByLabelText('매칭 점수')).toHaveTextContent('95점')
+    expect(within(cards[0]).getByText('매우 높은 적합도')).toBeInTheDocument()
     expect(within(cards[0]).getByText('사용자3')).toBeInTheDocument()
     expect(within(cards[1]).getByText('사용자2')).toBeInTheDocument()
     expect(within(cards[2]).getByLabelText('매칭 점수')).toHaveTextContent('80점')
+    expect(screen.getByText(/100점 만점으로 환산/)).toBeInTheDocument()
+    expect(screen.getByText(/85~100점.*매우 높은 적합도/)).toBeInTheDocument()
   })
 })

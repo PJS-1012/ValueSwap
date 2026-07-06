@@ -27,19 +27,31 @@ public class ItemMatchScorer {
         NameMatch nameMatch = normalizer.compareNames(provide.getName(), want.getName());
         int tagOverlap = normalizer.overlap(provide.getTags(), want.getTags());
 
-        int score = (sameCategory ? 25 : 0)
+        boolean subCategoryApplicable = hasText(provide.getSubCategory()) && hasText(want.getSubCategory());
+        boolean valueApplicable = provide.getEstimatedValue() != null
+                && want.getMinValue() != null && want.getMaxValue() != null;
+        int rawScore = (sameCategory ? 25 : 0)
                 + (sameSubCategory ? 25 : 0)
                 + nameMatch.points()
                 + Math.min(tagOverlap * 5, 20)
                 + valuePoints(provide.getEstimatedValue(), want.getMinValue(), want.getMaxValue())
                 + (normalizer.same(provideRegion, wantRegion) ? 10 : 0)
                 + trustPoints(providerTrustScore);
+        int maximumScore = 95 + (subCategoryApplicable ? 25 : 0) + (valueApplicable ? 20 : 0);
+        int score = Math.min(100, (int) Math.round(rawScore * 100.0 / maximumScore));
 
         boolean meaningfullyRelated = sameSubCategory || nameMatch.related() || tagOverlap > 0;
         return new ItemMatchResult(score, sameCategory && meaningfullyRelated && score >= threshold);
     }
 
-    private int valuePoints(long estimatedValue, long minValue, long maxValue) {
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private int valuePoints(Long estimatedValue, Long minValue, Long maxValue) {
+        if (estimatedValue == null || minValue == null || maxValue == null) {
+            return 0;
+        }
         if (estimatedValue >= minValue && estimatedValue <= maxValue) {
             return 20;
         }

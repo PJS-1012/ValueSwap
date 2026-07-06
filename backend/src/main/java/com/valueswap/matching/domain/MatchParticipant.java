@@ -54,4 +54,8 @@ public class MatchParticipant {
         participant.acceptStatus = AcceptStatus.PENDING;
         return participant;
     }
+
+    public void accept() { this.acceptStatus = AcceptStatus.ACCEPTED; }
+
+    public void reject() { this.acceptStatus = AcceptStatus.REJECTED; }
 }

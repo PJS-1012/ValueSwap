@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findAllByUserIdOrderByCreatedAtDesc(Long userId);
+    boolean existsByUserIdAndTypeAndReferenceId(Long userId, NotificationType type, Long referenceId);
 }

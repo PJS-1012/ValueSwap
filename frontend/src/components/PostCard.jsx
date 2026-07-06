@@ -4,12 +4,13 @@ const statusLabels = { ACTIVE: '교환 가능', IN_EXCHANGE: '교환 진행 중'
 
 export default function PostCard({ post }) {
   return (
-    <article className="post-card">
+    <Link className="post-card" data-testid="post-card" to={`/posts/${post.id}`}>
+    <article>
       <div className="card-meta">
         <span className={`status ${post.status?.toLowerCase()}`}>{statusLabels[post.status] || post.status}</span>
         <span>{post.region}</span>
       </div>
-      <h3><Link to={`/posts/${post.id}`}>{post.title}</Link></h3>
+      <h3>{post.title}</h3>
       {post.description && <p>{post.description}</p>}
       {(post.provideItems || post.wantItems) ? (
         <div className="swap-summary">
@@ -22,6 +23,6 @@ export default function PostCard({ post }) {
         <span>{post.author?.nickname || post.authorNickname}</span>
         <span>신뢰도 {post.author?.trustScore ?? post.authorTrustScore ?? '-'}</span>
       </div>
-    </article>
+    </article></Link>
   )
 }

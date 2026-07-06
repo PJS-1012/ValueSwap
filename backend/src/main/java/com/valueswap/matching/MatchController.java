@@ -37,4 +37,14 @@ public class MatchController {
                                        @PathVariable Long matchId) {
         return matchingService.findOne(user.userId(), matchId);
     }
+
+    @PostMapping("/{matchId}/accept")
+    public MatchDetailResponse accept(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long matchId) {
+        return matchingService.accept(matchId, user.userId());
+    }
+
+    @PostMapping("/{matchId}/reject")
+    public MatchDetailResponse reject(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long matchId) {
+        return matchingService.reject(matchId, user.userId());
+    }
 }

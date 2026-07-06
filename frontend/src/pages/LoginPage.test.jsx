@@ -21,6 +21,8 @@ vi.mock('../api/posts.js', () => ({
   },
 }))
 
+vi.mock('../api/notifications.js', () => ({ notificationsApi: { list: vi.fn().mockResolvedValue([]), markRead: vi.fn() } }))
+
 describe('로그인 화면', () => {
   beforeEach(() => {
     vi.clearAllMocks()

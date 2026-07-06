@@ -45,17 +45,25 @@ public class Notification {
     @Column(name = "is_read", nullable = false)
     private boolean read;
 
+    @Column
+    private Long referenceId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public static Notification create(User user, String title, String message, NotificationType type) {
+        return create(user, title, message, type, null);
+    }
+
+    public static Notification create(User user, String title, String message, NotificationType type, Long referenceId) {
         Notification notification = new Notification();
         notification.user = user;
         notification.title = title;
         notification.message = message;
         notification.type = type;
         notification.read = false;
+        notification.referenceId = referenceId;
         return notification;
     }
 

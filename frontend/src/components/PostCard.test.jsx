@@ -16,5 +16,7 @@ describe('교환 글 카드', () => {
 
     expect(screen.queryByText('제공 0')).not.toBeInTheDocument()
     expect(screen.getByText(/등록$/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /식사권 교환/ })).toHaveAttribute('href', '/posts/1')
+    expect(screen.getByTestId('post-card')).toBe(screen.getByRole('link', { name: /식사권 교환/ }))
   })
 })

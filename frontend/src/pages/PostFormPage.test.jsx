@@ -21,6 +21,8 @@ vi.mock('../api/posts.js', () => ({
   },
 }))
 
+vi.mock('../api/notifications.js', () => ({ notificationsApi: { list: vi.fn().mockResolvedValue([]), markRead: vi.fn() } }))
+
 describe('교환 글 등록 화면', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -46,7 +48,7 @@ describe('교환 글 등록 화면', () => {
     await screen.findByRole('heading', { name: '교환 글 등록' })
     await user.type(screen.getByLabelText('제목'), '동네 식사권 교환')
     await user.type(screen.getByLabelText('설명'), '서로 필요한 것을 바꿔요')
-    await user.type(screen.getByLabelText('거래 지역'), '서울 마포구')
+    await user.selectOptions(screen.getByLabelText('거래 지역'), '서울특별시')
 
     await user.click(screen.getByRole('button', { name: '제공 항목 추가' }))
     expect(screen.getAllByTestId('provide-item')).toHaveLength(2)
@@ -55,15 +57,15 @@ describe('교환 글 등록 화면', () => {
 
     const provide = screen.getByTestId('provide-item')
     await user.selectOptions(within(provide).getByLabelText('제공 카테고리'), 'COUPON')
-    await user.type(within(provide).getByLabelText('제공 세부 카테고리'), '식사권')
-    await user.type(within(provide).getByLabelText('제공 이름'), '돈까스 식사권')
+    await user.type(within(provide).getByLabelText('제공 세부 카테고리 (선택)'), '식사권')
+    await user.type(within(provide).getByLabelText('제공 물품·서비스'), '돈까스 식사권')
     await user.type(within(provide).getByLabelText('제공 가치'), '12000')
     await user.type(within(provide).getByLabelText('제공 태그'), '돈까스, 점심,  마포 ')
 
     const want = screen.getByTestId('want-item')
     await user.selectOptions(within(want).getByLabelText('희망 카테고리'), 'FOOD_MATERIAL')
-    await user.type(within(want).getByLabelText('희망 세부 카테고리'), '농산물')
-    await user.type(within(want).getByLabelText('희망 이름'), '감자')
+    await user.type(within(want).getByLabelText('희망 세부 카테고리 (선택)'), '농산물')
+    await user.type(within(want).getByLabelText('희망 물품·서비스'), '감자')
     await user.type(within(want).getByLabelText('희망 최소 가치'), '8000')
     await user.type(within(want).getByLabelText('희망 최대 가치'), '15000')
 
@@ -91,5 +93,20 @@ describe('교환 글 등록 화면', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('최소 가치는 최대 가치보다 클 수 없습니다.')
     expect(postsApi.create).not.toHaveBeenCalled()
+  })
+
+  it('지역과 가치 방식을 선택하고 누락 필드를 강조한다', async () => {
+    const user = userEvent.setup()
+    renderApp('/posts/new')
+    await screen.findByRole('heading', { name: '교환 글 등록' })
+
+    expect(screen.getByLabelText('거래 지역').tagName).toBe('SELECT')
+    expect(screen.getByLabelText('희망 물품·서비스')).toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText('제공 가치 방식'), 'NEGOTIABLE')
+    expect(screen.queryByLabelText('제공 가치')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '교환 글 등록' }))
+
+    expect(screen.getByLabelText(/^제목/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/^거래 지역/)).toHaveAttribute('aria-invalid', 'true')
   })
 })

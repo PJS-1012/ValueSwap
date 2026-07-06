@@ -100,4 +100,6 @@ public class ExchangePost {
     public void cancel() {
         this.status = PostStatus.CANCELED;
     }
+
+    public void startExchange() { this.status = PostStatus.IN_EXCHANGE; }
 }

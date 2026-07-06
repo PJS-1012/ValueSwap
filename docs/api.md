@@ -67,6 +67,7 @@ Authorization: Bearer <accessToken>
       "description": "1인 식사권",
       "quantity": 1,
       "estimatedValue": 12000,
+      "valuePolicy": "DIRECT",
       "tags": ["돈까스", "점심", "마포"]
     }
   ],
@@ -79,13 +80,14 @@ Authorization: Bearer <accessToken>
       "quantity": 1,
       "minValue": 8000,
       "maxValue": 15000,
+      "valuePolicy": "DIRECT",
       "tags": ["감자", "농산물"]
     }
   ]
 }
 ```
 
-카테고리 값은 `FOOD`, `FOOD_MATERIAL`, `DAILY_GOODS`, `ELECTRONICS`, `COUPON`, `SERVICE`, `TALENT`, `DESIGN`, `BEAUTY`, `LESSON`, `ETC`입니다. 글 상태는 `ACTIVE`, `IN_EXCHANGE`, `COMPLETED`, `CANCELLED`입니다.
+카테고리 값은 `FOOD`, `FOOD_MATERIAL`, `DAILY_GOODS`, `ELECTRONICS`, `COUPON`, `SERVICE`, `TALENT`, `DESIGN`, `BEAUTY`, `LESSON`, `ETC`입니다. `valuePolicy`는 `DIRECT`, `NEGOTIABLE`, `OFFER_REQUESTED`이며 직접 입력이 아니면 금액은 `null`일 수 있습니다. 세부 카테고리도 선택 사항입니다. 글 상태는 `ACTIVE`, `IN_EXCHANGE`, `COMPLETED`, `CANCELLED`입니다.
 
 ## 매칭
 
@@ -94,6 +96,8 @@ Authorization: Bearer <accessToken>
 | POST | `/matches/run` | ADMIN | 전체 활성 글을 다시 계산 |
 | GET | `/matches/my` | 예 | 내가 포함된 후보 목록 |
 | GET | `/matches/{matchId}` | 참여자 | 후보 상세 |
+| POST | `/matches/{matchId}/accept` | 참여자 | 참여 수락 |
+| POST | `/matches/{matchId}/reject` | 참여자 | 참여 거절 |
 
 수동 실행 응답:
 
@@ -106,6 +110,8 @@ Authorization: Bearer <accessToken>
 ```
 
 후보 목록은 서버에서 `score` 내림차순, 동점이면 `createdAt` 내림차순입니다. 프론트엔드도 같은 정렬을 적용합니다. `edges`의 `fromNickname → toNickname`은 희망 글에서 그 희망을 충족하는 제공 글로 향하는 탐색 방향이고, `orderIndex`가 순환 순서입니다. 실제 물품 전달 방향은 그 반대입니다.
+
+`score`는 카테고리·이름·태그·가치·지역·신뢰도 원점수를 평가 가능한 최대점으로 나누어 반올림한 0~100 정수입니다. 양쪽 세부 카테고리가 없거나 가치가 직접 입력되지 않은 경우 해당 항목은 분모에서 제외합니다. 화면 등급은 85~100 매우 높음, 70~84 높음, 55~69 보통, 40~54 낮음, 0~39 매우 낮음입니다.
 
 ```json
 {
@@ -123,7 +129,9 @@ Authorization: Bearer <accessToken>
 }
 ```
 
-상세 응답은 위 객체를 `{ "match": ... }`로 감쌉니다. 동일한 순환 경로는 `cycleKey`로 중복 저장되지 않으며 알림도 사용자·후보·유형 조합당 한 번만 생성됩니다.
+`referenceId`가 있는 알림은 해당 매칭 후보 ID를 의미하며, 알림 카드 선택 시 읽음 처리 후 `/matches/{referenceId}`로 이동합니다. 과거에 생성되어 `referenceId`가 없는 알림은 상세 이동을 제공하지 않습니다.
+
+상세 응답은 위 객체를 `{ "match": ... }`로 감쌉니다. 동일한 순환 경로는 `cycleKey`로 중복 저장되지 않으며 알림도 사용자·후보·유형 조합당 한 번만 생성됩니다. 전원 수락 시 후보 상태는 `ACCEPTED`, 관련 글은 `IN_EXCHANGE`가 됩니다.
 
 ## 알림
 
@@ -139,6 +147,7 @@ Authorization: Bearer <accessToken>
   "message": "3자 교환 경로가 발견되었습니다.",
   "type": "MATCH_FOUND",
   "read": false,
+  "referenceId": 12,
   "createdAt": "2026-06-30T12:00:00"
 }
 ```

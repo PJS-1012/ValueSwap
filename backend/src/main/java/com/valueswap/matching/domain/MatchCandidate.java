@@ -77,4 +77,8 @@ public class MatchCandidate {
         }
         return candidate;
     }
+
+    public void accept() { this.status = MatchStatus.ACCEPTED; }
+
+    public void reject() { this.status = MatchStatus.REJECTED; }
 }

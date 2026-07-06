@@ -1,11 +1,15 @@
 package com.valueswap.matching;
 
 import com.valueswap.notification.NotificationRepository;
+import com.valueswap.common.exception.ApiException;
 import com.valueswap.post.ExchangePostRepository;
 import com.valueswap.post.domain.Category;
 import com.valueswap.post.domain.ExchangePost;
 import com.valueswap.post.domain.ProvideItem;
 import com.valueswap.post.domain.WantItem;
+import com.valueswap.post.domain.PostStatus;
+import com.valueswap.matching.domain.AcceptStatus;
+import com.valueswap.matching.domain.MatchStatus;
 import com.valueswap.user.User;
 import com.valueswap.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -79,6 +84,60 @@ class MatchingServiceIntegrationTest {
             assertThat(match.participants()).hasSizeBetween(2, 3);
             assertThat(match.edges()).hasSize(match.participants().size());
         });
+    }
+
+    @Test
+    void allParticipantsAcceptingStartsExchangeForEveryPost() {
+        Scenario scenario = createThreePartyScenario();
+        matchingService.runMatching();
+        Long matchId = candidateRepository.findAll().get(0).getId();
+
+        matchingService.accept(matchId, scenario.restaurant().getId());
+        matchingService.accept(matchId, scenario.farmer().getId());
+        var result = matchingService.accept(matchId, scenario.designer().getId());
+
+        assertThat(result.match().status()).isEqualTo(MatchStatus.ACCEPTED);
+        assertThat(candidateRepository.findById(matchId).orElseThrow().getParticipants())
+                .allSatisfy(participant -> assertThat(participant.getAcceptStatus()).isEqualTo(AcceptStatus.ACCEPTED));
+        assertThat(postRepository.findAll()).allSatisfy(post -> assertThat(post.getStatus()).isEqualTo(PostStatus.IN_EXCHANGE));
+    }
+
+    @Test
+    void oneRejectionClosesCandidate() {
+        Scenario scenario = createThreePartyScenario();
+        matchingService.runMatching();
+        Long matchId = candidateRepository.findAll().get(0).getId();
+
+        var result = matchingService.reject(matchId, scenario.farmer().getId());
+
+        assertThat(result.match().status()).isEqualTo(MatchStatus.REJECTED);
+    }
+
+    @Test
+    void aPostAlreadyInExchangeCannotAcceptAnotherCandidate() {
+        Scenario scenario = createThreePartyScenario();
+        User cleaner = saveUser("cleaner-conflict@match.test", "생활용품사용자");
+        User anotherCleaner = saveUser("cleaner-conflict-2@match.test", "두번째생활용품사용자");
+        savePost(scenario.restaurant(), "식당의 두 번째 교환 글",
+                provide(Category.ELECTRONICS, "스마트폰", "스마트폰", 300_000, "스마트폰"),
+                want(Category.DAILY_GOODS, "생활용품", "세제", 20_000, 40_000, "세제"));
+        savePost(cleaner, "생활용품 교환 글",
+                provide(Category.DAILY_GOODS, "생활용품", "세제", 30_000, "세제"),
+                want(Category.ELECTRONICS, "스마트폰", "스마트폰", 250_000, 350_000, "스마트폰"));
+        savePost(anotherCleaner, "두 번째 생활용품 교환 글",
+                provide(Category.DAILY_GOODS, "생활용품", "세제", 30_000, "세제"),
+                want(Category.ELECTRONICS, "스마트폰", "스마트폰", 250_000, 350_000, "스마트폰"));
+        matchingService.runMatching();
+
+        var candidates = candidateRepository.findAll();
+        var twoPartyCandidates = candidates.stream().filter(candidate -> candidate.getParticipants().size() == 2).toList();
+        var first = twoPartyCandidates.get(0);
+        var second = twoPartyCandidates.get(1);
+        first.getParticipants().forEach(participant -> matchingService.accept(first.getId(), participant.getUser().getId()));
+
+        assertThatThrownBy(() -> matchingService.accept(second.getId(), scenario.restaurant().getId()))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("다른 거래가 진행 중");
     }
 
     private Scenario createThreePartyScenario() {
